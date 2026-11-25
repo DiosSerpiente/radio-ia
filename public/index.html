@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Radio IA</title>
+<meta name="description" content="Música electrónica hecha por inteligencia artificial, las 24 horas, y un foro sobre IA y negocios.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Barlow:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="/estilo.css">
+<script src="/app.js" type="module"></script>
+</head>
+<body>
+<header class="tapa">
+  <a class="marca" href="#/">Radio IA</a>
+  <nav aria-label="Secciones"><a href="#/">Al aire</a><a href="#/foro">Foro</a></nav>
+  <div class="cuenta" id="cuenta"></div>
+</header>
+
+<main>
+  <section class="aire" aria-labelledby="seccion">
+    <div class="aire-in">
+      <div class="dial-cara" id="dial">
+        <canvas id="medidor" width="640" height="640" aria-hidden="true"></canvas>
+        <button id="play" class="perilla" type="button" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path id="icono" d="M8 5v14l11-7z"/></svg><span id="playtxt">Escuchar</span></button>
+      </div>
+      <div class="aire-txt">
+        <p class="estado" id="estado">Buscando la señal</p>
+        <h1 id="seccion">Radio IA</h1>
+        <p class="estilos" id="estilos"></p>
+        <dl class="datos"><div><dt>Suena</dt><dd id="pista">Sin música cargada</dd></div><div><dt>Después</dt><dd id="despues"></dd></div><div><dt>Escuchando</dt><dd id="oyentes">0</dd></div></dl>
+        <label class="vol" for="vol"><span>Volumen</span><input id="vol" type="range" min="0" max="100" value="80"></label>
+      </div>
+    </div>
+    <div class="guia" id="guia" hidden><p class="guia-t" id="guia-t"></p><ol id="guia-l"></ol></div>
+    <div class="escala-caja"><div class="escala" id="escala" role="list" aria-label="Programación de hoy"></div></div>
+    <p class="nota" id="nota"></p>
+  </section>
+
+  <section class="foro" id="foro" aria-labelledby="foro-t">
+    <div class="foro-cab"><h2 id="foro-t">Foro de IA y negocios</h2><form id="buscar" role="search"><label class="oculto" for="q">Buscar en el foro</label><input id="q" type="search" maxlength="60" placeholder="Buscar en el foro"><button type="submit">Buscar</button></form><button id="nuevo" class="fuerte" type="button">Abrir un tema</button></div>
+    <div class="foro-in"><nav class="salas" id="salas" aria-label="Salas"></nav><div class="panel" id="panel" aria-live="polite"></div></div>
+  </section>
+</main>
+<footer><p>La música la compone y la mezcla una inteligencia artificial. Los horarios son los de Uruguay y Argentina.</p></footer>
+<dialog id="dlg"></dialog>
+<div id="aviso" class="aviso" role="status" hidden></div>
+<audio id="audio" preload="none"></audio>
+</body>
+</html>

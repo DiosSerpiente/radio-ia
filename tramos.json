@@ -1,0 +1,9 @@
+{
+  "zona": "America/Montevideo",
+  "tramos": [
+    { "nombre": "Mañana suave", "desde": "06:00", "hasta": "12:00", "sets": ["manana"] },
+    { "nombre": "Tarde en subida", "desde": "12:00", "hasta": "18:00", "sets": ["tarde"] },
+    { "nombre": "Noche de pista", "desde": "18:00", "hasta": "00:00", "sets": ["noche"] },
+    { "nombre": "Madrugada oscura", "desde": "00:00", "hasta": "06:00", "sets": ["madrugada"] }
+  ]
+}
