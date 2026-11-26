@@ -29,7 +29,9 @@ function ahora() {
   const de = t => tr.find(x => t >= x.a && t < x.z) ?? tr[0], elegir = (t, k) => { const x = de(t), l = x.sets.map(id => todos.find(s => s.id === id)).filter(Boolean); return l.length ? l[k % l.length] : todos[k % (todos.length || 1)] };
   const base = { hora, zona: P.zona, oyentes: contarOyentes(), tramos: P.tramos.map(x => ({ nombre: x.nombre, desde: x.desde, hasta: x.hasta, a: min(x.desde), z: min(x.hasta) || 1440 })), tramo: de(ahoraD).nombre }; if (!todos.length) return { ...base, set: null };
   let t = 0, k = 0, s; while (true) { s = elegir(t, k); if (ahoraD < t + s.dur) break; t += s.dur; k++ } const fin = Math.min(t + s.dur, 86400), sig = fin >= 86400 ? elegir(0, 0) : elegir(fin, k + 1), v = x => ({ titulo: x.titulo, marcas: x.marcas, dur: x.dur });
-  return { ...base, set: { ...v(s), url: '/media/' + s.archivo, desde: hm(t + INICIO), hasta: hm(fin + INICIO) }, offset: ahoraD - t, quedan: fin - ahoraD, siguiente: { ...v(sig), desde: hm(fin + INICIO) } };
+  // los sets largos vienen en partes (GitHub no acepta archivos de más de 100 MB): se manda la parte que suena y por dónde va
+  const off = ahoraD - t; let archivo = s.archivo, parte = null; if (s.partes) { let a = 0; for (const p of s.partes) { if (off < a + p.dur || p === s.partes.at(-1)) { archivo = p.archivo; parte = { offset: off - a, quedan: a + p.dur - off }; break } a += p.dur } }
+  return { ...base, set: { ...v(s), url: '/media/' + archivo, desde: hm(t + INICIO), hasta: hm(fin + INICIO) }, offset: off, quedan: fin - ahoraD, parte, siguiente: { ...v(sig), desde: hm(fin + INICIO) } };
 }
 const oyentes = new Map(); function contarOyentes() { const t = Date.now(); for (const [k, v] of oyentes) if (t - v > 45000) oyentes.delete(k); return oyentes.size }
 // ---------- Cuentas

@@ -110,5 +110,104 @@
    }
   ],
   "dur": 2669.013492063492
+ },
+ {
+  "id": "viaje2h-1",
+  "titulo": "Viaje de 2 horas",
+  "marcas": [
+   {
+    "motor": "house",
+    "nombre": "House",
+    "t": 0
+   },
+   {
+    "motor": "progressive",
+    "nombre": "Progressive",
+    "t": 2046
+   },
+   {
+    "motor": "dark",
+    "nombre": "Noche oscura",
+    "t": 3726
+   },
+   {
+    "motor": "progressive",
+    "nombre": "Progressive",
+    "t": 4682
+   },
+   {
+    "motor": "dark",
+    "nombre": "Noche oscura",
+    "t": 5032
+   },
+   {
+    "motor": "techno",
+    "nombre": "Techno",
+    "t": 5377
+   }
+  ],
+  "dur": 7398.863628,
+  "partes": [
+   {
+    "archivo": "viaje2h-1-p0.mp3",
+    "dur": 3699.996735
+   },
+   {
+    "archivo": "viaje2h-1-p1.mp3",
+    "dur": 3698.866893
+   }
+  ]
+ },
+ {
+  "id": "viaje3h-1",
+  "titulo": "Viaje de 3 horas",
+  "marcas": [
+   {
+    "motor": "house",
+    "nombre": "House",
+    "t": 0
+   },
+   {
+    "motor": "progressive",
+    "nombre": "Progressive",
+    "t": 2063
+   },
+   {
+    "motor": "dark",
+    "nombre": "Noche oscura",
+    "t": 5036
+   },
+   {
+    "motor": "minimal",
+    "nombre": "Minimal",
+    "t": 5669
+   },
+   {
+    "motor": "techhouse",
+    "nombre": "Tech House",
+    "t": 6649
+   },
+   {
+    "motor": "dark",
+    "nombre": "Noche oscura",
+    "t": 7272
+   },
+   {
+    "motor": "techno",
+    "nombre": "Techno",
+    "t": 8593
+   }
+  ],
+  "dur": 10784.876009,
+  "partes": [
+   {
+    "archivo": "viaje3h-1-p0.mp3",
+    "dur": 5392.992653
+   },
+   {
+    "archivo": "viaje3h-1-p1.mp3",
+    "dur": 5391.883356
+   }
+  ]
  }
 ]

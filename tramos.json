@@ -2,8 +2,10 @@
   "zona": "America/Montevideo",
   "tramos": [
     { "nombre": "Mañana suave", "desde": "06:00", "hasta": "12:00", "sets": ["manana"] },
-    { "nombre": "Tarde en subida", "desde": "12:00", "hasta": "18:00", "sets": ["tarde"] },
-    { "nombre": "Noche de pista", "desde": "18:00", "hasta": "00:00", "sets": ["noche"] },
+    { "nombre": "Tarde en subida", "desde": "12:00", "hasta": "16:00", "sets": ["tarde"] },
+    { "nombre": "Viaje de 2 horas", "desde": "16:00", "hasta": "18:00", "sets": ["viaje2h-1"] },
+    { "nombre": "Noche de pista", "desde": "18:00", "hasta": "21:00", "sets": ["noche"] },
+    { "nombre": "Viaje de 3 horas", "desde": "21:00", "hasta": "00:00", "sets": ["viaje3h-1"] },
     { "nombre": "Madrugada oscura", "desde": "00:00", "hasta": "06:00", "sets": ["madrugada"] }
   ]
 }
