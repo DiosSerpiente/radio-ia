@@ -209,5 +209,255 @@
     "dur": 5391.883356
    }
   ]
+ },
+ {
+  "id": "amanecer150-1",
+  "titulo": "Amanecer",
+  "marcas": [
+   {
+    "motor": "house",
+    "nombre": "House",
+    "t": 0
+   },
+   {
+    "motor": "progressive",
+    "nombre": "Progressive",
+    "t": 5809
+   },
+   {
+    "motor": "house",
+    "nombre": "House",
+    "t": 6139
+   },
+   {
+    "motor": "progressive",
+    "nombre": "Progressive",
+    "t": 6501
+   },
+   {
+    "motor": "minimal",
+    "nombre": "Minimal",
+    "t": 7815
+   },
+   {
+    "motor": "house",
+    "nombre": "House",
+    "t": 8143
+   }
+  ],
+  "dur": 8852.995691,
+  "partes": [
+   {
+    "archivo": "amanecer150-1-p0.mp3",
+    "dur": 4427.010612
+   },
+   {
+    "archivo": "amanecer150-1-p1.mp3",
+    "dur": 4425.985079
+   }
+  ]
+ },
+ {
+  "id": "house90-1",
+  "titulo": "House de mañana",
+  "marcas": [
+   {
+    "motor": "house",
+    "nombre": "House",
+    "t": 0
+   }
+  ],
+  "dur": 5376.048753,
+  "partes": [
+   {
+    "archivo": "house90-1-p0.mp3",
+    "dur": 5376.048753
+   }
+  ]
+ },
+ {
+  "id": "house2h-1",
+  "titulo": "House de día",
+  "marcas": [
+   {
+    "motor": "house",
+    "nombre": "House",
+    "t": 0
+   },
+   {
+    "motor": "techhouse",
+    "nombre": "Tech House",
+    "t": 5753
+   },
+   {
+    "motor": "house",
+    "nombre": "House",
+    "t": 6772
+   }
+  ],
+  "dur": 7459.090273,
+  "partes": [
+   {
+    "archivo": "house2h-1-p0.mp3",
+    "dur": 3730.011429
+   },
+   {
+    "archivo": "house2h-1-p1.mp3",
+    "dur": 3729.078844
+   }
+  ]
+ },
+ {
+  "id": "techhouse150-1",
+  "titulo": "Tech House del mediodía",
+  "marcas": [
+   {
+    "motor": "house",
+    "nombre": "House",
+    "t": 0
+   },
+   {
+    "motor": "techhouse",
+    "nombre": "Tech House",
+    "t": 325
+   }
+  ],
+  "dur": 8825.796372,
+  "partes": [
+   {
+    "archivo": "techhouse150-1-p0.mp3",
+    "dur": 4413.00898
+   },
+   {
+    "archivo": "techhouse150-1-p1.mp3",
+    "dur": 4412.787392
+   }
+  ]
+ },
+ {
+  "id": "progressive90-1",
+  "titulo": "Tarde progresiva",
+  "marcas": [
+   {
+    "motor": "progressive",
+    "nombre": "Progressive",
+    "t": 0
+   }
+  ],
+  "dur": 5292.270476,
+  "partes": [
+   {
+    "archivo": "progressive90-1-p0.mp3",
+    "dur": 5292.270476
+   }
+  ]
+ },
+ {
+  "id": "subida90-1",
+  "titulo": "Atardecer en subida",
+  "marcas": [
+   {
+    "motor": "house",
+    "nombre": "House",
+    "t": 0
+   },
+   {
+    "motor": "progressive",
+    "nombre": "Progressive",
+    "t": 1999
+   },
+   {
+    "motor": "techhouse",
+    "nombre": "Tech House",
+    "t": 3663
+   },
+   {
+    "motor": "techno",
+    "nombre": "Techno",
+    "t": 4638
+   }
+  ],
+  "dur": 5336.522925,
+  "partes": [
+   {
+    "archivo": "subida90-1-p0.mp3",
+    "dur": 5336.522925
+   }
+  ]
+ },
+ {
+  "id": "pista90-1",
+  "titulo": "Pico de la noche",
+  "marcas": [
+   {
+    "motor": "techhouse",
+    "nombre": "Tech House",
+    "t": 0
+   },
+   {
+    "motor": "dark",
+    "nombre": "Noche oscura",
+    "t": 315
+   },
+   {
+    "motor": "techno",
+    "nombre": "Techno",
+    "t": 973
+   }
+  ],
+  "dur": 5346.44068,
+  "partes": [
+   {
+    "archivo": "pista90-1-p0.mp3",
+    "dur": 5346.44068
+   }
+  ]
+ },
+ {
+  "id": "oscuro2h-1",
+  "titulo": "Madrugada oscura",
+  "marcas": [
+   {
+    "motor": "minimal",
+    "nombre": "Minimal",
+    "t": 0
+   },
+   {
+    "motor": "dark",
+    "nombre": "Noche oscura",
+    "t": 315
+   },
+   {
+    "motor": "minimal",
+    "nombre": "Minimal",
+    "t": 4092
+   },
+   {
+    "motor": "dark",
+    "nombre": "Noche oscura",
+    "t": 4429
+   },
+   {
+    "motor": "techno",
+    "nombre": "Techno",
+    "t": 5368
+   },
+   {
+    "motor": "dark",
+    "nombre": "Noche oscura",
+    "t": 5697
+   }
+  ],
+  "dur": 6969.540317999999,
+  "partes": [
+   {
+    "archivo": "oscuro2h-1-p0.mp3",
+    "dur": 3485.00898
+   },
+   {
+    "archivo": "oscuro2h-1-p1.mp3",
+    "dur": 3484.531338
+   }
+  ]
  }
 ]
