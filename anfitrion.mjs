@@ -42,7 +42,7 @@ CREATE TABLE IF NOT EXISTS meta(k TEXT PRIMARY KEY, v TEXT);`);
 
   function radio() {
     try { const a = ahora(); if (!a.set) return `Tramo de la radio ahora: ${a.tramo}. Todavía no hay set cargado.`; const t = a.offset, m = a.set.marcas, i = m.findLastIndex(x => x.t <= t);
-      return `Al aire ahora (hora de ${a.zona}): el set "${a.set.titulo}", de ${a.set.desde} a ${a.set.hasta}, que pasa por ${m.map(x => x.nombre).join(', ')}. Suena ${m[i]?.nombre ?? m[0].nombre}. Después viene "${a.siguiente.titulo}" a las ${a.siguiente.desde}. Programación diaria: ${a.tramos.map(x => `${x.nombre} de ${x.desde} a ${x.hasta}`).join('; ')}. Oyentes ahora: ${a.oyentes}.` } catch { return '' }
+      return `Al aire ahora (hora de ${a.zona}): el set "${a.set.titulo}", de ${a.set.desde} a ${a.set.hasta}, que pasa por ${m.map(x => x.nombre).join(', ')}. Suena ${m[i]?.nombre ?? m[0].nombre}. Después viene "${a.siguiente.titulo}" a las ${a.siguiente.desde}. Programación diaria: ${a.tramos.filter((x, i, l) => l.findIndex(y => y.nombre === x.nombre) === i).map(x => `${x.nombre} de ${x.desde} a ${x.hasta}`).join('; ')}. Oyentes ahora: ${a.oyentes}.` } catch { return '' }
   }
   async function pedir(texto, { largo = 'foro', formato } = {}) {
     if (!activo || !hayCupo()) return null;

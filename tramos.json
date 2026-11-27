@@ -1,11 +1,19 @@
 {
   "zona": "America/Montevideo",
-  "tramos": [
-    { "nombre": "Mañana suave", "desde": "06:00", "hasta": "12:00", "sets": ["manana"] },
-    { "nombre": "Tarde en subida", "desde": "12:00", "hasta": "16:00", "sets": ["tarde"] },
-    { "nombre": "Viaje de 2 horas", "desde": "16:00", "hasta": "18:00", "sets": ["viaje2h-1"] },
-    { "nombre": "Noche de pista", "desde": "18:00", "hasta": "21:00", "sets": ["noche"] },
-    { "nombre": "Viaje de 3 horas", "desde": "21:00", "hasta": "00:00", "sets": ["viaje3h-1"] },
-    { "nombre": "Madrugada oscura", "desde": "00:00", "hasta": "06:00", "sets": ["madrugada"] }
+  "nota": "Orden del día desde las 06:00. Cada set suena una sola vez; el horario de cada uno sale de lo que dura el anterior.",
+  "orden": [
+    "amanecer150-1",
+    "house90-1",
+    "house2h-1",
+    "techhouse150-1",
+    "progressive90-1",
+    "viaje2h-1",
+    "subida90-1",
+    "pista90-1",
+    "viaje3h-1",
+    "oscuro2h-1",
+    "techno2h-1",
+    "hard60-1",
+    "cierre-1"
   ]
 }
