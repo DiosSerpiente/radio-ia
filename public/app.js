@@ -28,15 +28,15 @@ au.addEventListener('ended', () => sonando && setTimeout(sintonizar, 300)); au.a
 async function latir() { if (sonando) try { $('#oyentes').textContent = (await post('latido', { id: miId })).oyentes } catch { } } setInterval(latir, 20000); setInterval(avance, 1000);
 // medidor alrededor de la perilla: graves al centro abajo, agudos arriba
 const cv = $('#medidor'), g = cv.getContext('2d'), quieto = matchMedia('(prefers-reduced-motion: reduce)').matches; function dibujar() { const W = 640, c = W / 2, n = 72; g.clearRect(0, 0, W, W); if (an && sonando) an.getByteFrequencyData(datos); for (let i = 0; i < n; i++) { const u = Math.abs(i / n * 2 - 1), k = Math.floor(2 + (1 - u) ** 2 * 0 + 200 * u ** 2), v = an && sonando ? datos[k] / 255 : .06, a = Math.PI * 2 * (i / n) - Math.PI / 2, r = 205, L = 14 + v * 92; g.strokeStyle = i % 6 ? `rgba(244,184,96,${.35 + v * .6})` : '#ffe0a8'; g.lineWidth = 5; g.lineCap = 'round'; g.beginPath(); g.moveTo(c + Math.cos(a) * r, c + Math.sin(a) * r); g.lineTo(c + Math.cos(a) * (r + L), c + Math.sin(a) * (r + L)); g.stroke() } if (!quieto) requestAnimationFrame(dibujar) } dibujar(); if (quieto) setInterval(dibujar, 1000);
-// grupito de 7 que baila según la energía de la música: si no suena o baja charlan, con poca energía pasitos tranquis,
+// grupito de 7 pictogramas negros con borde blanco que baila según la energía de la música: si no suena o baja charlan, con poca energía pasitos tranquis,
 // con todo cada uno su paso, y cuando el bombo vuelve después de un corte (el drop) saltan y agitan como locos
 let motorAhora = '';
 const grupo = (() => {
   const fig = (x, s, p, ella) => { const y = p.dy || 0, n = y + (p.hn || 0), X = v => x + s * v, hy = ella ? 29 : 24, ps = a => `L${X(a[0])} ${a[1] + y} L${X(a[2])} ${a[3] + y}`, pl = a => `L${X(a[0])} ${a[1]} L${X(a[2])} ${a[3]}`;
     return `<circle class="f" cx="${X(p.hx || 0)}" cy="${6 + n}" r="4.6"/>` + (ella ? `<circle class="f" cx="${X((p.hx || 0) - 4.4)}" cy="${3.8 + n}" r="2.4"/><path class="f" d="M${x - 3} ${12 + y}h6l5.5 17h-17z"/>` : `<rect class="f" x="${x - 4}" y="${12 + y}" width="8" height="13" rx="2.5"/>`)
       + `<path class="s" stroke-width="3" d="M${X(3.5)} ${14 + y}${ps(p.o)}M${X(-3.5)} ${14 + y}${ps(p.i)}"/><path class="s" stroke-width="${ella ? 3 : 4}" d="M${X(2)} ${hy + y}${pl(p.lo)}M${X(-2)} ${hy + y}${pl(p.li)}"/>` };
-  // [x, mirada (-1 mira a la derecha, 1 a la izquierda), ella, color]; para charlar se juntan de a dos, dos y tres
-  const gente = [[2, -1, 0, '#ffe0a8'], [11, 1, 1, '#ff6a4d'], [23, -1, 1, '#7fd1c7'], [32, 1, 0, '#f4b860'], [44, -1, 0, '#c9a7ff'], [53, 1, 1, '#9fd36a'], [61, 1, 0, '#ff9cc2']], ronda = [[0, 1], [2, 3], [4, 5, 6]];
+  // [x, mirada (-1 mira a la derecha, 1 a la izquierda), ella]; para charlar se juntan de a dos, dos y tres
+  const gente = [[2, -1, 0], [11, 1, 1], [23, -1, 1], [32, 1, 0], [44, -1, 0], [53, 1, 1], [61, 1, 0]], ronda = [[0, 1], [2, 3], [4, 5, 6]];
   const hs = (a, b) => { let h = Math.imul(a, 374761393) + Math.imul(b, 668265263); h = Math.imul(h ^ (h >>> 13), 1274126177); return (h ^ (h >>> 16)) >>> 0 };
   const parado = { o: [4, 20, 4, 26], i: [-4, 20, -4, 26], lo: [2, 32, 2, 40], li: [-2, 32, -2, 40] },
     habla = [{ ...parado, i: [-6, 18, -10, 15] }, { ...parado, i: [-6, 19, -9, 22], hn: .6 }, { ...parado, i: [-5, 17, -8, 11], o: [5, 19, 8, 23] }],
@@ -67,7 +67,8 @@ const grupo = (() => {
     if (e > prom * 1.2 && e > antes && e > .002 && ahora - golpe > per * .55) { const ivl = ahora - golpe; if (ivl > base * 8) volvio = ahora; else if (volvio && ivl > base * .8 && ivl < base * 1.25) { if (ahora - volvio < base * 2.6 && ahora > dropHasta + base * 32) dropHasta = ahora + base * 8; volvio = 0 } if (ivl > base * .8 && ivl < base * 1.25) perV = perV ? perV * .85 + ivl * .15 : ivl; golpe = ahora; let d = (ahora - fase) % per; if (d > per / 2) d -= per; if (d < -per / 2) d += per; if (Math.abs(d) < per * .3) { fase += d * .5; fuera = 0 } else if (++fuera >= 3) { fase += d; fuera = 0 } }
     prom = prom * .9 + e * .1; antes = e }
   const g = $('#grupo-g'); let ult = '';
-  const pintarGrupo = (est, k, t, fl) => g.innerHTML = (est === 'drop' && fl ? rayos : '') + gente.map(([x, s, ella, c], i) => { const p = pose(i, ella, est, k, t); return `<g fill="${c}" stroke="${c}" transform="translate(0 ${p.jy || 0})">${fig(x, s, p, ella)}</g>` }).join('');
+  const pintarGrupo = (est, k, t, fl) => g.innerHTML = (est === 'drop' && fl ? rayos : '') + gente.map(([x, s, ella], i) => { const p = pose(i, ella, est, k, t), f = fig(x, s, p, ella), b = f.replace(/stroke-width="(\d)"/g, (m, w) => `stroke-width="${+w + 2.4}"`);
+    return `<g transform="translate(0 ${p.jy || 0})"><g class="borde">${b}</g><g class="cuerpo">${f}</g></g>` }).join('');
   function bailar() { const P = $('#grupo'); if (!P.hidden) { const t = Date.now(), base = 60000 / (BPM[motorAhora] || 125); if (motorV !== motorAhora || !sonando) { perV = 0; motorV = motorAhora }
     const vivo = sonando && an && ctx.state === 'running'; if (vivo && !oia) { golpe = t; lento = 0; techo = .01; volvio = 0; bajoDesde = 0 } oia = vivo; if (vivo) escuchar(t, base); const per = perV || base;
     while (t - fase >= per) { fase += per; nb++ } while (t < fase) { fase -= per; nb-- } const k = nb * 2 + (t - fase >= per / 2), fl = t - fase < 90;

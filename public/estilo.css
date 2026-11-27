@@ -53,12 +53,14 @@ button:hover { border-color: var(--luz) }
 .guia li.va b { color: var(--luz2) }
 .guia li.va::after { background: var(--aguja) }
 .guia li span { font-variant-numeric: tabular-nums; font-size: .9rem }
-/* grupito de 7 pictogramas que baila según la música, montado en la punta del marcador */
+/* grupito de 7 pictogramas negros con borde blanco que baila según la música, montado en la punta del marcador */
 .guia-pista { position: relative }
 .guia:has(.grupo) .guia-t { margin-bottom: 2.1rem }
 .grupo { position: absolute; top: 0; left: 0; transform: translate(-50%, -100%); line-height: 0; pointer-events: none; transition: left 1s linear }
 .grupo svg { overflow: visible }
-.grupo .f { stroke: none } .grupo .s { stroke-linecap: round; stroke-linejoin: round; fill: none } .grupo .r { stroke: var(--aguja); stroke-width: 2; stroke-linecap: round }
+.grupo .s { stroke-linecap: round; stroke-linejoin: round; fill: none }
+.grupo .cuerpo { fill: #0b0b0b; stroke: #0b0b0b } .grupo .cuerpo .f { stroke: none }
+.grupo .borde { fill: #fff; stroke: #fff } .grupo .borde .f { stroke-width: 2.4; stroke-linejoin: round } .grupo .r { stroke: var(--aguja); stroke-width: 2; stroke-linecap: round }
 .escala-caja { overflow-x: auto; margin-top: 2rem; padding-inline: clamp(1rem, 4vw, 3rem); scrollbar-width: thin; scrollbar-color: var(--linea) transparent }
 .escala { position: relative; min-width: 1400px; max-width: calc(1180px - 2 * clamp(1rem, 4vw, 3rem)); margin-inline: auto; height: 118px }
 .franja { position: absolute; box-sizing: border-box; top: 0; height: 62px; padding: .5rem .55rem 0; border-left: 1px solid var(--linea); overflow: hidden; color: var(--tenue); line-height: 1.15 }
