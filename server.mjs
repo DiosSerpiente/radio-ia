@@ -1,5 +1,5 @@
 // Radio + foro + chat en vivo. Única dependencia: el SDK de Anthropic para DJ_IA. node server.mjs
-import http from 'node:http'; import fs from 'node:fs'; import path from 'node:path'; import crypto from 'node:crypto'; import { DatabaseSync } from 'node:sqlite'; import { fileURLToPath } from 'node:url'; import { crearAnfitrion, NICK as DJNICK } from './anfitrion.mjs';
+import http from 'node:http'; import fs from 'node:fs'; import path from 'node:path'; import crypto from 'node:crypto'; import { DatabaseSync } from 'node:sqlite'; import { fileURLToPath } from 'node:url'; import { Readable } from 'node:stream'; import { crearAnfitrion, NICK as DJNICK } from './anfitrion.mjs';
 const DIR = path.dirname(fileURLToPath(import.meta.url)), PUB = path.join(DIR, 'public'), MEDIA = path.join(DIR, 'media'), PORT = +(process.env.PORT || 4321), PROD = process.env.NODE_ENV === 'production';
 const db = new DatabaseSync(process.env.DB || path.join(DIR, 'foro.db'));
 db.exec(`PRAGMA journal_mode=WAL; PRAGMA foreign_keys=ON;
@@ -73,6 +73,19 @@ function archivo(req, res, base, rel) {
   if (m && (m[1] || m[2])) { let a = m[1] ? +m[1] : Math.max(0, st.size - +m[2]), z = m[1] && m[2] ? Math.min(+m[2], st.size - 1) : st.size - 1; if (a > z || a >= st.size) { res.writeHead(416, { 'content-range': 'bytes */' + st.size }); return res.end() } res.writeHead(206, { ...h, 'content-range': `bytes ${a}-${z}/${st.size}`, 'content-length': z - a + 1 }); return req.method === 'HEAD' ? res.end() : fs.createReadStream(f, { start: a, end: z }).pipe(res) }
   res.writeHead(200, { ...h, 'content-length': st.size }); req.method === 'HEAD' ? res.end() : fs.createReadStream(f).pipe(res);
 }
+// El audio no va en el repo (pesa mucho): vive en el release "audio" de GitHub y el servidor lo trae respetando los saltos (Range).
+// Solo se sirven los archivos que figuran en media/sets.json.
+const AUDIO = (process.env.AUDIO_URL || 'https://github.com/DiosSerpiente/radio-ia/releases/download/audio').replace(/\/$/, '');
+const enSets = rel => (leer(path.join(MEDIA, 'sets.json')) ?? []).some(s => s.archivo === rel || s.partes?.some(p => p.archivo === rel));
+async function remoto(req, res, rel) {
+  if (!/^[\w.-]+\.mp3$/.test(rel) || !enSets(rel)) { res.writeHead(404, { 'content-type': 'text/plain; charset=utf-8' }); return res.end('No encontrado') }
+  const ac = new AbortController(); res.on('close', () => ac.abort());
+  let r; try { r = await fetch(AUDIO + '/' + rel, { headers: req.headers.range ? { range: req.headers.range } : {}, signal: ac.signal }) } catch { if (!res.headersSent) res.writeHead(502); return res.end() }
+  if (r.status !== 200 && r.status !== 206) { ac.abort(); res.writeHead(r.status === 416 ? 416 : 404, { 'content-type': 'text/plain; charset=utf-8' }); return res.end('No encontrado') }
+  const h = { 'content-type': 'audio/mpeg', 'accept-ranges': 'bytes', 'cache-control': 'public, max-age=86400' }; for (const k of ['content-length', 'content-range']) { const v = r.headers.get(k); if (v) h[k] = v }
+  res.writeHead(r.status, h); if (req.method === 'HEAD') { ac.abort(); return res.end() }
+  Readable.fromWeb(r.body).on('error', () => res.destroy()).pipe(res);
+}
 http.createServer(async (req, res) => {
   res.setHeader('x-content-type-options', 'nosniff'); res.setHeader('referrer-policy', 'same-origin'); res.setHeader('x-frame-options', 'DENY'); res.setHeader('content-security-policy', "default-src 'self'; style-src 'self' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; media-src 'self'; frame-ancestors 'none'; base-uri 'none'; form-action 'self'");
   try {
@@ -83,6 +96,6 @@ http.createServer(async (req, res) => {
       const r = h({ req, res, b, q: url.searchParams, u: quien(req), ip: (PROD && String(req.headers['x-real-ip'] || req.headers['x-forwarded-for'] || '').split(',')[0].trim()) || req.socket.remoteAddress }); res.writeHead(200, { 'content-type': 'application/json; charset=utf-8', 'cache-control': 'no-store' }); return res.end(JSON.stringify(r));
     }
     if (req.method !== 'GET' && req.method !== 'HEAD') throw new E(405, 'No permitido.');
-    if (p.startsWith('/media/')) return archivo(req, res, MEDIA, p.slice(7)); return archivo(req, res, PUB, p === '/' ? 'index.html' : p.slice(1));
+    if (p.startsWith('/media/')) { const rel = p.slice(7); return p.endsWith('.mp3') && !fs.existsSync(path.join(MEDIA, rel)) ? remoto(req, res, rel) : archivo(req, res, MEDIA, rel) } return archivo(req, res, PUB, p === '/' ? 'index.html' : p.slice(1));
   } catch (e) { const c = e instanceof E ? e.c : 500; if (c === 500) console.error(e); if (!res.headersSent) res.writeHead(c, { 'content-type': 'application/json; charset=utf-8' }); res.end(JSON.stringify({ error: c === 500 ? 'Algo falló de nuestro lado. Probá de nuevo.' : e.message })) }
 }).listen(PORT, () => console.log('Radio en http://localhost:' + PORT));
