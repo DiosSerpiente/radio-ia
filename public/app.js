@@ -17,6 +17,7 @@ function pintar() {
 function avance() {
   if (!ah) return; const a = $('#aguja'); if (a) a.style.left = ((ah.hora + reloj()) % 86400) / 864 + '%'; if (!ah.set) { $('#pista').textContent = 'Sin música cargada'; return }
   const t = posSet(), M = ah.set.marcas; [...$('#guia-l').children].forEach((li, i) => { const ini = M[i].t, fin = M[i + 1]?.t ?? ah.set.dur, u = Math.max(0, Math.min(1, (t - ini) / (fin - ini))), va = t >= ini && t < fin; li.style.setProperty('--va', u * 100 + '%'); li.className = va ? 'va' : ''; va ? li.setAttribute('aria-current', 'true') : li.removeAttribute('aria-current'); if (va) { $('#pista').textContent = M[i].nombre; if (estiloVisto && estiloVisto !== M[i].nombre) agregarChat(el('li', { class: 'sistema' }, `Ahora suena ${M[i].nombre}`)); estiloVisto = M[i].nombre } });
+  const vli = $('#guia-l li.va'), P = $('#pareja'); P.hidden = !vli; if (vli) P.style.left = vli.offsetLeft + parseFloat(vli.style.getPropertyValue('--va')) / 100 * vli.offsetWidth + 'px';
 }
 async function traer() { const i = Date.now(); ah = await get('ahora'); t0.v = Date.now() - (Date.now() - i) / 2; pintar(); clearTimeout(tFin); if (ah.set) tFin = setTimeout(() => sonando ? sintonizar() : traer(), Math.min((ah.parte?.quedan ?? ah.quedan) * 1000 + 400, 2 ** 31 - 1)) }
 async function sintonizar() { try { await traer() } catch { $('#estado').textContent = 'Sin conexión. Reintentando'; return setTimeout(() => sonando && sintonizar(), 5000) } if (!ah.set) { avisar('Todavía no hay sets cargados.'); return parar() } if (!sonando) return; au.src = ah.set.url; au.currentTime = posAudio(); try { await au.play(); if (Math.abs(au.currentTime - posAudio()) > 1.5) au.currentTime = posAudio() } catch (e) { if (e.name !== 'AbortError') { parar(); avisar('El navegador no dejó iniciar el sonido. Tocá de nuevo.') } } }
@@ -27,6 +28,25 @@ au.addEventListener('ended', () => sonando && setTimeout(sintonizar, 300)); au.a
 async function latir() { if (sonando) try { $('#oyentes').textContent = (await post('latido', { id: miId })).oyentes } catch { } } setInterval(latir, 20000); setInterval(avance, 1000);
 // medidor alrededor de la perilla: graves al centro abajo, agudos arriba
 const cv = $('#medidor'), g = cv.getContext('2d'), quieto = matchMedia('(prefers-reduced-motion: reduce)').matches; function dibujar() { const W = 640, c = W / 2, n = 72; g.clearRect(0, 0, W, W); if (an && sonando) an.getByteFrequencyData(datos); for (let i = 0; i < n; i++) { const u = Math.abs(i / n * 2 - 1), k = Math.floor(2 + (1 - u) ** 2 * 0 + 200 * u ** 2), v = an && sonando ? datos[k] / 255 : .06, a = Math.PI * 2 * (i / n) - Math.PI / 2, r = 205, L = 14 + v * 92; g.strokeStyle = i % 6 ? `rgba(244,184,96,${.35 + v * .6})` : '#ffe0a8'; g.lineWidth = 5; g.lineCap = 'round'; g.beginPath(); g.moveTo(c + Math.cos(a) * r, c + Math.sin(a) * r); g.lineTo(c + Math.cos(a) * (r + L), c + Math.sin(a) * (r + L)); g.stroke() } if (!quieto) requestAnimationFrame(dibujar) } dibujar(); if (quieto) setInterval(dibujar, 1000);
+// pareja que baila techno a 130 BPM: cambia de paso cada 8 golpes y cierra cada frase con un drop y estrobo
+const pareja = (() => {
+  const fig = (x, s, p, ella) => { const y = p.dy || 0, n = y + (p.hn || 0), X = v => x + s * v, hy = ella ? 29 : 24, ps = a => `L${X(a[0])} ${a[1] + y} L${X(a[2])} ${a[3] + y}`, pl = a => `L${X(a[0])} ${a[1]} L${X(a[2])} ${a[3]}`;
+    return `<circle class="f" cx="${X(p.hx || 0)}" cy="${6 + n}" r="4.6"/>` + (ella ? `<circle class="f" cx="${X((p.hx || 0) - 4.4)}" cy="${3.8 + n}" r="2.4"/><path class="f" d="M${x - 3} ${12 + y}h6l5.5 17h-17z"/>` : `<rect class="f" x="${x - 4}" y="${12 + y}" width="8" height="13" rx="2.5"/>`)
+      + `<path class="s" stroke-width="3" d="M${X(3.5)} ${14 + y}${ps(p.o)}M${X(-3.5)} ${14 + y}${ps(p.i)}"/><path class="s" stroke-width="${ella ? 3 : 4}" d="M${X(2)} ${hy + y}${pl(p.lo)}M${X(-2)} ${hy + y}${pl(p.li)}"/>` };
+  const up = { o: [5, 7, 6, -3], i: [-6, 19, -3, 24], lo: [3, 32, 3, 40], li: [-3, 32, -3, 40] }, dn = { dy: 2, hn: 1.5, o: [7, 12, 5, 6], i: [-6, 21, -3, 26], lo: [5, 34, 3, 40], li: [-5, 34, -3, 40] },
+    both = { o: [5, 6, 6, -3], i: [-5, 6, -6, -3], lo: [3, 32, 3, 40], li: [-3, 32, -3, 40] }, bothDn = { dy: 2, hn: 1, o: [6, 5, 8, -2], i: [-6, 5, -8, -2], lo: [5, 34, 4, 40], li: [-5, 34, -4, 40] },
+    mS = [{ o: [6, 20, 4, 14], i: [-6, 20, -7, 26], lo: [5, 30, 3, 35], li: [-2, 33, -6, 40] }, { dy: 1, o: [6, 20, 7, 26], i: [-6, 20, -4, 14], lo: [2, 32, 2, 40], li: [-2, 32, -2, 40] }, { o: [6, 20, 7, 26], i: [-6, 20, -4, 14], lo: [2, 33, 6, 40], li: [-5, 30, -3, 35] }, { dy: 1, o: [6, 20, 4, 14], i: [-6, 20, -7, 26], lo: [2, 32, 2, 40], li: [-2, 32, -2, 40] }],
+    wS = [{ o: [6, 19, 4, 13], i: [-6, 19, -7, 24], lo: [4, 34, 7, 39], li: [-2, 34, -2, 40] }, { dy: 1, o: [6, 19, 7, 24], i: [-6, 19, -4, 13], lo: [2, 34, 2, 40], li: [-2, 34, -2, 40] }, { o: [6, 19, 7, 24], i: [-6, 19, -4, 13], lo: [2, 34, 2, 40], li: [-4, 34, -7, 39] }, { dy: 1, o: [6, 19, 4, 13], i: [-6, 19, -7, 24], lo: [2, 34, 2, 40], li: [-2, 34, -2, 40] }],
+    V0 = { o: [6, 5, 8, -3], i: [-6, 5, -8, -3], lo: [4, 32, 5, 40], li: [-4, 32, -5, 40] }, VR = { dy: 1, hx: 1, o: [7, 6, 12, 0], i: [-2, 4, 2, -4], lo: [2, 32, 2, 40], li: [-3, 32, -5, 40] }, VL = { dy: 1, hx: -1, o: [2, 4, -2, -4], i: [-7, 6, -12, 0], lo: [3, 32, 5, 40], li: [-2, 32, -2, 40] },
+    rayos = '<path class="r" d="M23 -4v-4M15 -2l-3-3M31 -2l3-3M8 3H4M38 3h4"/>',
+    puno = k => k % 2 ? up : dn, shuf = (k, w) => (w ? wS : mS)[k % 4], aire = k => [V0, VR, V0, VL][k % 4],
+    frases = [[puno, puno, 0], [shuf, shuf, 0], [aire, aire, 1], [shuf, puno, 0], [puno, aire, 1]], BEAT = 60000 / 130;
+  const cuadro = (k, fl) => { const q = k % 16; if (q >= 14) { const p = q % 2 ? both : bothDn; return (fl ? rayos : '') + fig(13, -1, p) + fig(33, 1, p, 1) }
+    const f = frases[Math.floor(k / 16) % frases.length]; return (f[2] && fl ? rayos : '') + fig(13, -1, f[0](k, 0)) + fig(33, 1, f[1](k + 1, 1), 1) };
+  const g = $('#pareja-g'); let ult = '';
+  function bailar() { const P = $('#pareja'); if (!P.hidden) { const t = Date.now(), k = Math.floor(t / (BEAT / 2)), fl = t % BEAT < 90, c = k + '|' + fl; if (c !== ult) { ult = c; g.innerHTML = cuadro(k, fl) } } if (!quieto) requestAnimationFrame(bailar) }
+  g.innerHTML = fig(13, -1, both) + fig(33, 1, both, 1); if (!quieto) bailar();
+})();
 
 // ---------- Foro
 let yo = null, djNick = null, salas = [], sala = '', busca = '', pag = 0; const panel = $('#panel'), dlg = $('#dlg'), nomSala = id => salas.find(s => s.id === id)?.nombre ?? id;
