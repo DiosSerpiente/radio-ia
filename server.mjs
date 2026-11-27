@@ -20,15 +20,18 @@ export const SALAS = [
   { id: 'musica', nombre: 'Música e IA', desc: 'Lo que suena en la radio y cómo se hace.' },
   { id: 'presentaciones', nombre: 'Presentaciones', desc: 'Quién sos y en qué andás.' },
 ];
-// ---------- Radio: sets de 4 estilos, uno detrás de otro; todos escuchan lo mismo a la misma hora
+// ---------- Radio: los sets del día suenan uno detrás de otro en el orden de tramos.json, cada uno una sola vez; todos escuchan lo mismo a la misma hora
 const leer = f => { try { return JSON.parse(fs.readFileSync(f)) } catch { return null } }, min = h => +h.slice(0, 2) * 60 + +h.slice(3), hm = s => { s = ((Math.round(s) % 86400) + 86400) % 86400; return String(Math.floor(s / 3600)).padStart(2, '0') + ':' + String(Math.floor(s / 60) % 60).padStart(2, '0') };
 function reloj(tz) { const p = Object.fromEntries(new Intl.DateTimeFormat('en-GB', { timeZone: tz, hour: '2-digit', minute: '2-digit', second: '2-digit', hourCycle: 'h23' }).formatToParts(new Date()).map(x => [x.type, x.value])); return +p.hour * 3600 + +p.minute * 60 + +p.second + (Date.now() % 1000) / 1000 }
 const INICIO = 6 * 3600; // el día de la radio arranca a las 6
 function ahora() {
-  const P = leer(path.join(DIR, 'tramos.json')), todos = leer(path.join(MEDIA, 'sets.json')) ?? [], hora = reloj(P.zona), ahoraD = (hora - INICIO + 86400) % 86400, tr = P.tramos.map(x => ({ ...x, a: (min(x.desde) * 60 - INICIO + 86400) % 86400, z: (min(x.hasta) * 60 - INICIO + 86400) % 86400 || 86400 }));
-  const de = t => tr.find(x => t >= x.a && t < x.z) ?? tr[0], elegir = (t, k) => { const x = de(t), l = x.sets.map(id => todos.find(s => s.id === id)).filter(Boolean); return l.length ? l[k % l.length] : todos[k % (todos.length || 1)] };
-  const base = { hora, zona: P.zona, oyentes: contarOyentes(), tramos: P.tramos.map(x => ({ nombre: x.nombre, desde: x.desde, hasta: x.hasta, a: min(x.desde), z: min(x.hasta) || 1440 })), tramo: de(ahoraD).nombre }; if (!todos.length) return { ...base, set: null };
-  let t = 0, k = 0, s; while (true) { s = elegir(t, k); if (ahoraD < t + s.dur) break; t += s.dur; k++ } const fin = Math.min(t + s.dur, 86400), sig = fin >= 86400 ? elegir(0, 0) : elegir(fin, k + 1), v = x => ({ titulo: x.titulo, marcas: x.marcas, dur: x.dur });
+  const P = leer(path.join(DIR, 'tramos.json')), todos = leer(path.join(MEDIA, 'sets.json')) ?? [], hora = reloj(P.zona), ahoraD = (hora - INICIO + 86400) % 86400, base = { hora, zona: P.zona, oyentes: contarOyentes(), tramos: [], tramo: 'Radio IA' };
+  const orden = P.orden.map(id => todos.find(s => s.id === id)).filter(Boolean), dia = orden.length ? orden : todos; if (!dia.length) return { ...base, set: null };
+  // la grilla del día: cada set con la hora real en que empieza y termina (si no alcanzan para 24 horas, la lista vuelve a empezar)
+  const G = []; for (let t = 0, k = 0; t < 86400; k++) { const s = dia[k % dia.length]; G.push({ s, a: t, z: Math.min(t + s.dur, 86400) }); t += s.dur }
+  // franjas para la escala de 0 a 24 h, en minutos del reloj; la que cruza la medianoche va en dos pedazos
+  for (const g of G) { const a = (g.a + INICIO) / 60 % 1440, z = a + (g.z - g.a) / 60, x = { nombre: g.s.titulo, desde: hm(g.a + INICIO), hasta: hm(g.z + INICIO) }; if (z <= 1440) base.tramos.push({ ...x, a, z }); else base.tramos.push({ ...x, a, z: 1440 }, { ...x, a: 0, z: z - 1440 }) }
+  const k = G.findIndex(g => ahoraD < g.z), { s, a: t, z: fin } = G[k], sig = (G[k + 1] ?? G[0]).s, v = x => ({ titulo: x.titulo, marcas: x.marcas, dur: x.dur }); base.tramo = s.titulo;
   // los sets largos vienen en partes (GitHub no acepta archivos de más de 100 MB): se manda la parte que suena y por dónde va
   const off = ahoraD - t; let archivo = s.archivo, parte = null; if (s.partes) { let a = 0; for (const p of s.partes) { if (off < a + p.dur || p === s.partes.at(-1)) { archivo = p.archivo; parte = { offset: off - a, quedan: a + p.dur - off }; break } a += p.dur } }
   return { ...base, set: { ...v(s), url: '/media/' + archivo, desde: hm(t + INICIO), hasta: hm(fin + INICIO) }, offset: off, quedan: fin - ahoraD, parte, siguiente: { ...v(sig), desde: hm(fin + INICIO) } };
