@@ -17,7 +17,7 @@ function pintar() {
 function avance() {
   if (!ah) return; const a = $('#aguja'); if (a) a.style.left = ((ah.hora + reloj()) % 86400) / 864 + '%'; if (!ah.set) { $('#pista').textContent = 'Sin música cargada'; return }
   const t = posSet(), M = ah.set.marcas; [...$('#guia-l').children].forEach((li, i) => { const ini = M[i].t, fin = M[i + 1]?.t ?? ah.set.dur, u = Math.max(0, Math.min(1, (t - ini) / (fin - ini))), va = t >= ini && t < fin; li.style.setProperty('--va', u * 100 + '%'); li.classList.toggle('va', va); va ? li.setAttribute('aria-current', 'true') : li.removeAttribute('aria-current'); if (va) { $('#pista').textContent = M[i].nombre; if (estiloVisto && estiloVisto !== M[i].nombre) agregarChat(el('li', { class: 'sistema' }, `Ahora suena ${M[i].nombre}`)); estiloVisto = M[i].nombre } });
-  const vli = $('#guia-l li.va'), P = $('#pareja'); P.hidden = !vli; motorAhora = vli ? M[[...vli.parentNode.children].indexOf(vli)].motor : ''; if (vli) P.style.left = vli.offsetLeft + parseFloat(vli.style.getPropertyValue('--va')) / 100 * vli.offsetWidth + 'px';
+  const vli = $('#guia-l li.va'), P = $('#grupo'); P.hidden = !vli; motorAhora = vli ? M[[...vli.parentNode.children].indexOf(vli)].motor : ''; if (vli) P.style.left = vli.offsetLeft + parseFloat(vli.style.getPropertyValue('--va')) / 100 * vli.offsetWidth + 'px';
 }
 async function traer() { const i = Date.now(); ah = await get('ahora'); t0.v = Date.now() - (Date.now() - i) / 2; pintar(); clearTimeout(tFin); if (ah.set) tFin = setTimeout(() => sonando ? sintonizar() : traer(), Math.min((ah.parte?.quedan ?? ah.quedan) * 1000 + 400, 2 ** 31 - 1)) }
 async function sintonizar() { try { await traer() } catch { $('#estado').textContent = 'Sin conexión. Reintentando'; return setTimeout(() => sonando && sintonizar(), 5000) } if (!ah.set) { avisar('Todavía no hay sets cargados.'); return parar() } if (!sonando) return; au.src = ah.set.url; au.currentTime = posAudio(); try { await au.play(); if (Math.abs(au.currentTime - posAudio()) > 1.5) au.currentTime = posAudio() } catch (e) { if (e.name !== 'AbortError') { parar(); avisar('El navegador no dejó iniciar el sonido. Tocá de nuevo.') } } }
@@ -28,34 +28,55 @@ au.addEventListener('ended', () => sonando && setTimeout(sintonizar, 300)); au.a
 async function latir() { if (sonando) try { $('#oyentes').textContent = (await post('latido', { id: miId })).oyentes } catch { } } setInterval(latir, 20000); setInterval(avance, 1000);
 // medidor alrededor de la perilla: graves al centro abajo, agudos arriba
 const cv = $('#medidor'), g = cv.getContext('2d'), quieto = matchMedia('(prefers-reduced-motion: reduce)').matches; function dibujar() { const W = 640, c = W / 2, n = 72; g.clearRect(0, 0, W, W); if (an && sonando) an.getByteFrequencyData(datos); for (let i = 0; i < n; i++) { const u = Math.abs(i / n * 2 - 1), k = Math.floor(2 + (1 - u) ** 2 * 0 + 200 * u ** 2), v = an && sonando ? datos[k] / 255 : .06, a = Math.PI * 2 * (i / n) - Math.PI / 2, r = 205, L = 14 + v * 92; g.strokeStyle = i % 6 ? `rgba(244,184,96,${.35 + v * .6})` : '#ffe0a8'; g.lineWidth = 5; g.lineCap = 'round'; g.beginPath(); g.moveTo(c + Math.cos(a) * r, c + Math.sin(a) * r); g.lineTo(c + Math.cos(a) * (r + L), c + Math.sin(a) * (r + L)); g.stroke() } if (!quieto) requestAnimationFrame(dibujar) } dibujar(); if (quieto) setInterval(dibujar, 1000);
-// pareja que baila techno a al tempo de la música: cambia de paso cada 8 golpes y cierra cada frase con un drop y estrobo
+// grupito de 7 que baila según la energía de la música: si no suena o baja charlan, con poca energía pasitos tranquis,
+// con todo cada uno su paso, y cuando el bombo vuelve después de un corte (el drop) saltan y agitan como locos
 let motorAhora = '';
-const pareja = (() => {
+const grupo = (() => {
   const fig = (x, s, p, ella) => { const y = p.dy || 0, n = y + (p.hn || 0), X = v => x + s * v, hy = ella ? 29 : 24, ps = a => `L${X(a[0])} ${a[1] + y} L${X(a[2])} ${a[3] + y}`, pl = a => `L${X(a[0])} ${a[1]} L${X(a[2])} ${a[3]}`;
     return `<circle class="f" cx="${X(p.hx || 0)}" cy="${6 + n}" r="4.6"/>` + (ella ? `<circle class="f" cx="${X((p.hx || 0) - 4.4)}" cy="${3.8 + n}" r="2.4"/><path class="f" d="M${x - 3} ${12 + y}h6l5.5 17h-17z"/>` : `<rect class="f" x="${x - 4}" y="${12 + y}" width="8" height="13" rx="2.5"/>`)
       + `<path class="s" stroke-width="3" d="M${X(3.5)} ${14 + y}${ps(p.o)}M${X(-3.5)} ${14 + y}${ps(p.i)}"/><path class="s" stroke-width="${ella ? 3 : 4}" d="M${X(2)} ${hy + y}${pl(p.lo)}M${X(-2)} ${hy + y}${pl(p.li)}"/>` };
-  const up = { o: [5, 7, 6, -3], i: [-6, 19, -3, 24], lo: [3, 32, 3, 40], li: [-3, 32, -3, 40] }, dn = { dy: 2, hn: 1.5, o: [7, 12, 5, 6], i: [-6, 21, -3, 26], lo: [5, 34, 3, 40], li: [-5, 34, -3, 40] },
+  // [x, mirada (-1 mira a la derecha, 1 a la izquierda), ella, color]; para charlar se juntan de a dos, dos y tres
+  const gente = [[2, -1, 0, '#ffe0a8'], [11, 1, 1, '#ff6a4d'], [23, -1, 1, '#7fd1c7'], [32, 1, 0, '#f4b860'], [44, -1, 0, '#c9a7ff'], [53, 1, 1, '#9fd36a'], [61, 1, 0, '#ff9cc2']], ronda = [[0, 1], [2, 3], [4, 5, 6]];
+  const hs = (a, b) => { let h = Math.imul(a, 374761393) + Math.imul(b, 668265263); h = Math.imul(h ^ (h >>> 13), 1274126177); return (h ^ (h >>> 16)) >>> 0 };
+  const parado = { o: [4, 20, 4, 26], i: [-4, 20, -4, 26], lo: [2, 32, 2, 40], li: [-2, 32, -2, 40] },
+    habla = [{ ...parado, i: [-6, 18, -10, 15] }, { ...parado, i: [-6, 19, -9, 22], hn: .6 }, { ...parado, i: [-5, 17, -8, 11], o: [5, 19, 8, 23] }],
+    escucha = [parado, { ...parado, hn: 1 }, { ...parado, o: [6, 19, 3, 23] }, { ...parado, o: [6, 19, 3, 23], i: [-6, 19, -3, 23] }],
+    paso = [{ dy: 1, hn: 1, hx: -1, o: [5, 20, 6, 26], i: [-5, 20, -7, 24], lo: [2, 32, 2, 40], li: [-4, 32, -6, 40] }, parado, { dy: 1, hn: 1, hx: 1, o: [5, 20, 7, 24], i: [-5, 20, -6, 26], lo: [4, 32, 6, 40], li: [-2, 32, -2, 40] }, parado],
+    up = { o: [5, 7, 6, -3], i: [-6, 19, -3, 24], lo: [3, 32, 3, 40], li: [-3, 32, -3, 40] }, dn = { dy: 2, hn: 1.5, o: [7, 12, 5, 6], i: [-6, 21, -3, 26], lo: [5, 34, 3, 40], li: [-5, 34, -3, 40] },
     both = { o: [5, 6, 6, -3], i: [-5, 6, -6, -3], lo: [3, 32, 3, 40], li: [-3, 32, -3, 40] }, bothDn = { dy: 2, hn: 1, o: [6, 5, 8, -2], i: [-6, 5, -8, -2], lo: [5, 34, 4, 40], li: [-5, 34, -4, 40] },
     mS = [{ o: [6, 20, 4, 14], i: [-6, 20, -7, 26], lo: [5, 30, 3, 35], li: [-2, 33, -6, 40] }, { dy: 1, o: [6, 20, 7, 26], i: [-6, 20, -4, 14], lo: [2, 32, 2, 40], li: [-2, 32, -2, 40] }, { o: [6, 20, 7, 26], i: [-6, 20, -4, 14], lo: [2, 33, 6, 40], li: [-5, 30, -3, 35] }, { dy: 1, o: [6, 20, 4, 14], i: [-6, 20, -7, 26], lo: [2, 32, 2, 40], li: [-2, 32, -2, 40] }],
     wS = [{ o: [6, 19, 4, 13], i: [-6, 19, -7, 24], lo: [4, 34, 7, 39], li: [-2, 34, -2, 40] }, { dy: 1, o: [6, 19, 7, 24], i: [-6, 19, -4, 13], lo: [2, 34, 2, 40], li: [-2, 34, -2, 40] }, { o: [6, 19, 7, 24], i: [-6, 19, -4, 13], lo: [2, 34, 2, 40], li: [-4, 34, -7, 39] }, { dy: 1, o: [6, 19, 4, 13], i: [-6, 19, -7, 24], lo: [2, 34, 2, 40], li: [-2, 34, -2, 40] }],
     V0 = { o: [6, 5, 8, -3], i: [-6, 5, -8, -3], lo: [4, 32, 5, 40], li: [-4, 32, -5, 40] }, VR = { dy: 1, hx: 1, o: [7, 6, 12, 0], i: [-2, 4, 2, -4], lo: [2, 32, 2, 40], li: [-3, 32, -5, 40] }, VL = { dy: 1, hx: -1, o: [2, 4, -2, -4], i: [-7, 6, -12, 0], lo: [3, 32, 5, 40], li: [-2, 32, -2, 40] },
-    rayos = '<path class="r" d="M23 -4v-4M15 -2l-3-3M31 -2l3-3M8 3H4M38 3h4"/>',
-    puno = k => k % 2 ? up : dn, shuf = (k, w) => (w ? wS : mS)[k % 4], aire = k => [V0, VR, V0, VL][k % 4],
-    frases = [[puno, puno, 0], [shuf, shuf, 0], [aire, aire, 1], [shuf, puno, 0], [puno, aire, 1]];
-  const cuadro = (k, fl) => { const q = k % 16; if (q >= 14) { const p = q % 2 ? both : bothDn; return (fl ? rayos : '') + fig(13, -1, p) + fig(33, 1, p, 1) }
-    const f = frases[Math.floor(k / 16) % frases.length]; return (f[2] && fl ? rayos : '') + fig(13, -1, f[0](k, 0)) + fig(33, 1, f[1](k + 1, 1), 1) };
-  const g = $('#pareja-g'); let ult = '';
-  // tempo: el de cada estilo según el motor; con la música sonando, la fase se engancha al bombo real
+    manos = [[9, -4], [12, 2], [4, -7], [11, 9], [1, -6], [8, -8]],
+    rayos = '<path class="r" d="M31 -10v-4M18 -8l-3-3M44 -8l3-3M-2 -3h-4M64 -3h4"/>';
+  const puno = k => k % 2 ? up : dn, shuf = (k, ella) => (ella ? wS : mS)[k % 4], aire = k => [V0, VR, V0, VL][k % 4], pasos = [puno, shuf, aire];
+  function pose(i, ella, est, k, t) {
+    if (est === 'charla') { const r = ronda.find(r => r.includes(i)), quien = r[Math.floor(t / 2600 + i / 2) % r.length], h = hs(Math.floor(t / 420), i); return quien === i ? habla[h % 3] : escucha[h % 9 < 5 ? 0 : h % 4] }
+    if (est === 'tranqui') return paso[(k + (i % 2) * 2) % 4];
+    if (est === 'drop') { const h = hs(k, i), m1 = manos[h % 6], m2 = manos[(h >>> 4) % 6], arriba = k % 2 === 0;
+      return { jy: arriba ? -5 - (h % 3) : 0, dy: arriba ? 0 : 2, hn: arriba ? -1 : 1, o: [6, 8, ...m1], i: [-6, 8, -m2[0], m2[1]], lo: arriba ? [4, 34, 6, 37] : [5, 34, 3, 40], li: arriba ? [-4, 34, -6, 37] : [-5, 34, -3, 40] } }
+    const q = k % 16; if (q >= 14) return q % 2 ? both : bothDn;
+    return pasos[(Math.floor(k / 16) + i) % 3](k, ella) }
+  // tempo del estilo según el motor; con la radio sonando se engancha al bombo real y mide la energía de los graves
   const BPM = { house: 124.5, progressive: 124.5, minimal: 124.5, dark: 124.5, techhouse: 129.5, techno: 136.5, hard: 147 };
-  let fase = Date.now(), nb = 8000, bajo, buf, prom = 0, antes = 0, golpe = 0, fuera = 3, perV = 0, motorV = '';
+  let fase = Date.now(), nb = 8000, bajo, buf, prom = 0, antes = 0, golpe = 0, fuera = 3, perV = 0, motorV = '', lento = 0, techo = .01, dropHasta = 0, volvio = 0, bajoDesde = 0, estado = 'charla', oia = false;
   function escuchar(ahora, base) { const per = perV || base;
     if (!bajo) { const lp = ctx.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 140; bajo = ctx.createAnalyser(); bajo.fftSize = 2048; buf = new Float32Array(bajo.fftSize); an.connect(lp).connect(bajo) }
     bajo.getFloatTimeDomainData(buf); let e = 0; for (const v of buf) e += v * v; e = Math.sqrt(e / buf.length);
-    if (e > prom * 1.2 && e > antes && e > .002 && ahora - golpe > per * .55) { const ivl = ahora - golpe; if (ivl > base * .8 && ivl < base * 1.25) perV = perV ? perV * .85 + ivl * .15 : ivl; golpe = ahora; let d = (ahora - fase) % per; if (d > per / 2) d -= per; if (d < -per / 2) d += per; if (Math.abs(d) < per * .3) { fase += d * .5; fuera = 0 } else if (++fuera >= 3) { fase += d; fuera = 0 } }
+    lento = lento * .97 + e * .03; techo = Math.max(techo * .9997, lento);
+    if (e > prom * 1.2 && e > antes && e > .002 && ahora - golpe > per * .55) { const ivl = ahora - golpe; if (ivl > base * 8) volvio = ahora; else if (volvio && ivl > base * .8 && ivl < base * 1.25) { if (ahora - volvio < base * 2.6 && ahora > dropHasta + base * 32) dropHasta = ahora + base * 8; volvio = 0 } if (ivl > base * .8 && ivl < base * 1.25) perV = perV ? perV * .85 + ivl * .15 : ivl; golpe = ahora; let d = (ahora - fase) % per; if (d > per / 2) d -= per; if (d < -per / 2) d += per; if (Math.abs(d) < per * .3) { fase += d * .5; fuera = 0 } else if (++fuera >= 3) { fase += d; fuera = 0 } }
     prom = prom * .9 + e * .1; antes = e }
-  function bailar() { const P = $('#pareja'); if (!P.hidden) { const t = Date.now(), base = 60000 / (BPM[motorAhora] || 125); if (motorV !== motorAhora || !sonando) { perV = 0; motorV = motorAhora } if (sonando && an && ctx.state === 'running') escuchar(t, base); const per = perV || base;
-    while (t - fase >= per) { fase += per; nb++ } while (t < fase) { fase -= per; nb-- } const k = nb * 2 + (t - fase >= per / 2), fl = t - fase < 90, c = k + '|' + fl; if (c !== ult) { ult = c; g.innerHTML = cuadro(k, fl) } } if (!quieto) requestAnimationFrame(bailar) }
-  g.innerHTML = fig(13, -1, both) + fig(33, 1, both, 1); if (!quieto) bailar();
+  const g = $('#grupo-g'); let ult = '';
+  const pintarGrupo = (est, k, t, fl) => g.innerHTML = (est === 'drop' && fl ? rayos : '') + gente.map(([x, s, ella, c], i) => { const p = pose(i, ella, est, k, t); return `<g fill="${c}" stroke="${c}" transform="translate(0 ${p.jy || 0})">${fig(x, s, p, ella)}</g>` }).join('');
+  function bailar() { const P = $('#grupo'); if (!P.hidden) { const t = Date.now(), base = 60000 / (BPM[motorAhora] || 125); if (motorV !== motorAhora || !sonando) { perV = 0; motorV = motorAhora }
+    const vivo = sonando && an && ctx.state === 'running'; if (vivo && !oia) { golpe = t; lento = 0; techo = .01; volvio = 0; bajoDesde = 0 } oia = vivo; if (vivo) escuchar(t, base); const per = perV || base;
+    while (t - fase >= per) { fase += per; nb++ } while (t < fase) { fase -= per; nb-- } const k = nb * 2 + (t - fase >= per / 2), fl = t - fase < 90;
+    const nivel = lento / techo, sinB = (t - golpe) / per;
+    if (vivo) { if (nivel < .45) bajoDesde ||= t; else if (nivel >= .8) { if (bajoDesde && t - bajoDesde > per * 16 && t > dropHasta + per * 32) dropHasta = t + per * 8; bajoDesde = 0 } }
+    const quiere = !vivo ? 'charla' : t < dropHasta ? 'drop' : nivel < .3 ? 'charla' : nivel < .6 || sinB > 4 ? 'tranqui' : 'baile';
+    if (quiere === 'drop' || (k % 4 === 0 && quiere !== estado)) estado = quiere;
+    const c = k + '|' + fl + '|' + estado + (estado === 'charla' ? Math.floor(t / 420) : ''); if (c !== ult) { ult = c; pintarGrupo(estado, k, t, fl) } } if (!quieto) requestAnimationFrame(bailar) }
+  pintarGrupo('charla', 0, 0, false); if (!quieto) bailar();
 })();
 
 // ---------- Foro
