@@ -459,5 +459,88 @@
     "dur": 3484.531338
    }
   ]
+ },
+ {
+  "id": "techno2h-1",
+  "titulo": "Techno de madrugada",
+  "marcas": [
+   {
+    "motor": "techno",
+    "nombre": "Techno",
+    "t": 0
+   },
+   {
+    "motor": "dark",
+    "nombre": "Noche oscura",
+    "t": 320
+   },
+   {
+    "motor": "techno",
+    "nombre": "Techno",
+    "t": 2316
+   }
+  ],
+  "dur": 7226.620749,
+  "partes": [
+   {
+    "archivo": "techno2h-1-p0.mp3",
+    "dur": 3614.001633
+   },
+   {
+    "archivo": "techno2h-1-p1.mp3",
+    "dur": 3612.619116
+   }
+  ]
+ },
+ {
+  "id": "hard60-1",
+  "titulo": "Hard techno",
+  "marcas": [
+   {
+    "motor": "techno",
+    "nombre": "Techno",
+    "t": 0
+   },
+   {
+    "motor": "hard",
+    "nombre": "Hard techno",
+    "t": 1596
+   }
+  ],
+  "dur": 3728.907891,
+  "partes": [
+   {
+    "archivo": "hard60-1-p0.mp3",
+    "dur": 3728.907891
+   }
+  ]
+ },
+ {
+  "id": "cierre-1",
+  "titulo": "Cierre del día",
+  "marcas": [
+   {
+    "motor": "techno",
+    "nombre": "Techno",
+    "t": 0
+   },
+   {
+    "motor": "dark",
+    "nombre": "Noche oscura",
+    "t": 315
+   },
+   {
+    "motor": "progressive",
+    "nombre": "Progressive",
+    "t": 1875
+   }
+  ],
+  "dur": 4181.578209,
+  "partes": [
+   {
+    "archivo": "cierre-1-p0.mp3",
+    "dur": 4181.578209
+   }
+  ]
  }
 ]
