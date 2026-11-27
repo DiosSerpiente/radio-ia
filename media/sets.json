@@ -1,7 +1,7 @@
 [
  {
   "id": "manana",
-  "archivo": "manana-v2.mp3",
+  "archivo": "manana-voz-202611271441.mp3",
   "titulo": "Mañana suave",
   "marcas": [
    {
@@ -29,7 +29,7 @@
  },
  {
   "id": "tarde",
-  "archivo": "tarde-v2.mp3",
+  "archivo": "tarde-voz-202611271441.mp3",
   "titulo": "Tarde en subida",
   "marcas": [
    {
@@ -57,7 +57,7 @@
  },
  {
   "id": "noche",
-  "archivo": "noche-v2.mp3",
+  "archivo": "noche-voz-202611271441.mp3",
   "titulo": "Noche de pista",
   "marcas": [
    {
@@ -85,7 +85,7 @@
  },
  {
   "id": "madrugada",
-  "archivo": "madrugada-v2.mp3",
+  "archivo": "madrugada-voz-202611271441.mp3",
   "titulo": "Madrugada oscura",
   "marcas": [
    {
