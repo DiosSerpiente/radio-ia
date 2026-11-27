@@ -48,7 +48,8 @@ button:hover { border-color: var(--luz) }
 .guia li { flex: var(--largo) 1 0; min-width: 0; padding-top: .55rem; position: relative; color: var(--tenue) }
 .guia li::before, .guia li::after { content: ""; position: absolute; left: 0; top: 0; height: 5px; width: 100%; background: var(--linea) }
 .guia li::after { width: var(--va, 0%); background: var(--luz) }
-.guia li b { display: block; font: 600 1.45rem/1.1 var(--titulo); color: var(--texto); overflow-wrap: anywhere }
+.guia li b { display: block; font: 600 1.45rem/1.1 var(--titulo); color: var(--texto); hyphens: auto; overflow-wrap: break-word }
+.guia li.corto b, .guia li.corto span { display: none }
 .guia li.va b { color: var(--luz2) }
 .guia li.va::after { background: var(--aguja) }
 .guia li span { font-variant-numeric: tabular-nums; font-size: .9rem }
@@ -59,9 +60,9 @@ button:hover { border-color: var(--luz) }
 .pareja svg { overflow: visible }
 .pareja .f { fill: var(--luz2) } .pareja .s { stroke: var(--luz2); stroke-linecap: round; stroke-linejoin: round; fill: none } .pareja .r { stroke: var(--aguja); stroke-width: 2; stroke-linecap: round }
 .escala-caja { overflow-x: auto; margin-top: 2rem; padding-inline: clamp(1rem, 4vw, 3rem); scrollbar-width: thin; scrollbar-color: var(--linea) transparent }
-.escala { position: relative; min-width: 940px; max-width: calc(1180px - 2 * clamp(1rem, 4vw, 3rem)); margin-inline: auto; height: 118px }
-.franja { position: absolute; top: 0; height: 62px; padding: .5rem .55rem 0; border-left: 1px solid var(--linea); overflow: hidden; color: var(--tenue); line-height: 1.15 }
-.franja b { display: block; font: 600 1.05rem/1.05 var(--titulo); color: var(--texto); overflow-wrap: anywhere }
+.escala { position: relative; min-width: 1400px; max-width: calc(1180px - 2 * clamp(1rem, 4vw, 3rem)); margin-inline: auto; height: 118px }
+.franja { position: absolute; box-sizing: border-box; top: 0; height: 62px; padding: .5rem .55rem 0; border-left: 1px solid var(--linea); overflow: hidden; color: var(--tenue); line-height: 1.15 }
+.franja b { display: block; font: 600 1rem/1.05 var(--titulo); color: var(--texto); hyphens: auto; overflow-wrap: break-word }
 .franja.va { background: linear-gradient(#f4b86038, #f4b86008) }
 .franja.va b { color: var(--luz2) }
 .franja.esp b { color: var(--luz) }
